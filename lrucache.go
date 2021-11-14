@@ -59,6 +59,7 @@ func (m *Middleware) Validate() error {
 // ServeHTTP implements caddyhttp.MiddlewareHandler.
 func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
 	m.w.Write([]byte(r.RemoteAddr))
+	fmt.Printf("%v\n", r)
 	return next.ServeHTTP(w, r)
 }
 
