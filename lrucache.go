@@ -84,6 +84,8 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 	}
 	err := next.ServeHTTP(buff, r)
 	fmt.Printf("%s\n", buff.Bytes.Bytes())
+	w.WriteHeader(buff.Code)
+	buff.Bytes.WriteTo(w)
 	return err
 }
 
