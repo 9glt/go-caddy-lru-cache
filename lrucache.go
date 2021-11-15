@@ -107,7 +107,7 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 func (m *Middleware) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 	for d.Next() {
 		if !d.Args(&m.Output) {
-			return d.ArgErr()
+			// return d.ArgErr()
 		}
 	}
 	return nil
