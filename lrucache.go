@@ -70,7 +70,7 @@ func (rw RW) WriteHeader(status int) {
 }
 
 func (rw RW) Write(b []byte) (int, error) {
-	fmt.Printf("%s\n", b)
+	// fmt.Printf("%s\n", b)
 	rw.Bytes = append(rw.Bytes, b...)
 	return 0, nil
 }
