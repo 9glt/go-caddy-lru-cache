@@ -3,6 +3,7 @@ package lrucache
 import (
 	"bytes"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -94,7 +95,7 @@ func (rw RW) Write(b []byte) (int, error) {
 func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
 	var err error
 	var value interface{}
-
+	log.Printf("%s", m.Output)
 	if strings.HasSuffix(r.URL.RawPath, m.Output) {
 		value, err, _ = sf.Do(r.URL.Path, func() (interface{}, error) {
 			var value interface{}
