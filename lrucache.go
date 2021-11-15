@@ -13,16 +13,16 @@ import (
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 
 	lrucache "github.com/9glt/go-caddy-lru-cache/golang-lru"
-	"github.com/9glt/go-caddy-lru-cache/golang-lru/simplelru"
+	simplelru "github.com/9glt/go-caddy-lru-cache/golang-lru/simplelru"
 )
 
 var (
-	LRUCache = simplelru.LRUCache
+	LRUCache simplelru.LRUCache
 )
 
 func init() {
 
-	LRUCache = lrucache.NewTTLWithEvict(3000, 60, nil)
+	LRUCache, _ = lrucache.NewTTLWithEvict(3000, 60, nil)
 
 	caddy.RegisterModule(Middleware{})
 	httpcaddyfile.RegisterHandlerDirective("tscache", parseCaddyfile)
