@@ -65,7 +65,7 @@ type RW struct {
 }
 
 func (rw RW) Header() http.Header {
-	return rw.H.Header
+	return rw.H
 }
 
 func (rw RW) WriteHeader(status int) {
