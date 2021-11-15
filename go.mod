@@ -5,6 +5,7 @@ go 1.17
 require (
 	github.com/caddyserver/caddy/v2 v2.4.6
 	github.com/hashicorp/golang-lru v0.5.1
+	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 )
 
 require (
@@ -13,7 +14,6 @@ require (
 	github.com/Masterminds/semver/v3 v3.1.1 // indirect
 	github.com/Masterminds/sprig/v3 v3.2.2 // indirect
 	github.com/antlr/antlr4 v0.0.0-20200503195918-621b933c7a7f // indirect
-	github.com/araddon/gou v0.0.0-20211019181548-e7d08105776c // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/caddyserver/certmagic v0.15.2 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect

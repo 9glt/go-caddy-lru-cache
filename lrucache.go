@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/caddyserver/caddy/v2"
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
@@ -13,15 +14,16 @@ import (
 
 	lrucache "github.com/9glt/go-caddy-lru-cache/golang-lru"
 	simplelru "github.com/9glt/go-caddy-lru-cache/golang-lru/simplelru"
+	"golang.org/x/sync/singleflight"
 )
 
 var (
-	LRUCache simplelru.LRUCache
+	cache simplelru.LRUCache
+	sf    singleflight.Group
 )
 
 func init() {
-
-	LRUCache, _ = lrucache.NewTTLWithEvict(3000, 60, nil)
+	cache, _ = lrucache.NewTTLWithEvict(3000, 60, nil)
 
 	caddy.RegisterModule(Middleware{})
 	httpcaddyfile.RegisterHandlerDirective("tscache", parseCaddyfile)
@@ -90,15 +92,30 @@ func (rw RW) Write(b []byte) (int, error) {
 
 // ServeHTTP implements caddyhttp.MiddlewareHandler.
 func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
+	var err error
+	var value interface{}
 
-	buff := RW{
-		Bytes: bytes.NewBuffer(nil),
-		W:     w,
-		H:     http.Header{},
+	if strings.HasSuffix(r.URL.RawPath, m.Output) {
+		value, err, _ = sf.Do(r.URL.Path, func() (interface{}, error) {
+			var value interface{}
+			var ok bool
+			if value, ok = cache.Get(r.URL.RawPath); ok {
+				return value, nil
+			}
+			buff := RW{
+				Bytes: bytes.NewBuffer(nil),
+				W:     w,
+				H:     http.Header{},
+			}
+			err := next.ServeHTTP(buff, r)
+			cache.Add(r.URL.RawPath, buff.Bytes.Bytes())
+			return buff.Bytes.Bytes(), err
+		})
+		w.WriteHeader(200)
+		w.Write(value.([]byte))
+	} else {
+		err = next.ServeHTTP(w, r)
 	}
-	err := next.ServeHTTP(buff, r)
-	// fmt.Printf("%s", buff.Bytes.Bytes())
-	// fmt.Printf("%v", buff.H)
 	return err
 }
 
@@ -106,7 +123,7 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 func (m *Middleware) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 	for d.Next() {
 		if !d.Args(&m.Output) {
-			// return d.ArgErr()
+			return d.ArgErr()
 		}
 	}
 	return nil
