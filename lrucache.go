@@ -13,6 +13,7 @@ import (
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
 	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
+	"github.com/pkg/errors"
 
 	lrucache "github.com/9glt/go-caddy-lru-cache/golang-lru"
 	simplelru "github.com/9glt/go-caddy-lru-cache/golang-lru/simplelru"
@@ -115,10 +116,15 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 			}
 			err := next.ServeHTTP(buff, r)
 			log.Printf("mh: %v", cache.Add(r.URL.Path, buff.Bytes.Bytes()))
+			if err == nil {
+				err = errors.New("dont print")
+			}
 			return buff.Bytes.Bytes(), err
 		})
-		w.WriteHeader(200)
-		w.Write(value.([]byte))
+		if err == nil {
+			w.WriteHeader(200)
+			w.Write(value.([]byte))
+		}
 	} else {
 		err = next.ServeHTTP(w, r)
 	}
