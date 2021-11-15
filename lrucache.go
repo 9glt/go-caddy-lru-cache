@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/caddyserver/caddy/v2"
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
@@ -24,7 +25,7 @@ var (
 )
 
 func init() {
-	cache, _ = lrucache.NewTTLWithEvict(3000, 60, nil)
+	cache, _ = lrucache.NewTTLWithEvict(3000, 60*time.Second, nil)
 
 	caddy.RegisterModule(Middleware{})
 	httpcaddyfile.RegisterHandlerDirective("tscache", parseCaddyfile)
