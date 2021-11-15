@@ -56,11 +56,32 @@ func (m *Middleware) Validate() error {
 	return nil
 }
 
+type RW struct {
+	Bytes []byte
+	Code  int
+}
+
+func (rw RW) Header() http.Header {
+	return http.Header{}
+}
+
+func (rw RW) WriteHeader(status int) {
+	rw.Code = status
+}
+
+func (rw RW) Write(b []byte) (int, error) {
+	rw.Bytes = append(rw.Bytes, b...)
+	return 0, nil
+}
+
 // ServeHTTP implements caddyhttp.MiddlewareHandler.
 func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
 	m.w.Write([]byte(r.RemoteAddr))
 	fmt.Printf("%v\n", r)
-	return next.ServeHTTP(w, r)
+	buff := RW{}
+	err := next.ServeHTTP(buff, r)
+	fmt.Printf("%s\n", buff.Bytes)
+	return err
 }
 
 // UnmarshalCaddyfile implements caddyfile.Unmarshaler.
