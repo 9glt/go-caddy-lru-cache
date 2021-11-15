@@ -97,6 +97,7 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 	var value interface{}
 	log.Printf("%s", m.Output)
 	if strings.HasSuffix(r.URL.RawPath, m.Output) {
+		log.Printf(" ============== HAS SUFFIX")
 		value, err, _ = sf.Do(r.URL.Path, func() (interface{}, error) {
 			var value interface{}
 			var ok bool
