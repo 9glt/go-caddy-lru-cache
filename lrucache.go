@@ -69,12 +69,13 @@ func (rw RW) Header() http.Header {
 
 func (rw RW) WriteHeader(status int) {
 	rw.Code = status
+	rw.W.WriteHeader(status)
 }
 
 func (rw RW) Write(b []byte) (int, error) {
 	// fmt.Printf("%s\n", b)
-	// rw.W.Write(b)
-	return rw.Bytes.Write(b)
+	rw.Bytes.Write(b)
+	return rw.W.Write(b)
 }
 
 // ServeHTTP implements caddyhttp.MiddlewareHandler.
@@ -87,9 +88,9 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 	}
 	err := next.ServeHTTP(buff, r)
 	fmt.Printf("%s\n", buff.Bytes.Bytes())
-	w.WriteHeader(buff.Code)
-	w.Header().Add("Content-Length", fmt.Sprintf("%d", buff.Bytes.Len()))
-	w.Write(buff.Bytes.Bytes())
+	// w.WriteHeader(buff.Code)
+	// w.Header().Add("Content-Length", fmt.Sprintf("%d", buff.Bytes.Len()))
+	// w.Write(buff.Bytes.Bytes())
 	// buff.Bytes.WriteTo(w)
 	return err
 }
