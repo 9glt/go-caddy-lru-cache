@@ -89,8 +89,8 @@ func (rw RW) WriteHeader(status int) {
 
 func (rw RW) Write(b []byte) (int, error) {
 	// fmt.Printf("%s\n", b)
-	rw.Bytes.Write(b)
-	return rw.W.Write(b)
+	return rw.Bytes.Write(b)
+	// return rw.W.Write(b)
 }
 
 // ServeHTTP implements caddyhttp.MiddlewareHandler.
@@ -121,10 +121,10 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 			}
 			return buff.Bytes.Bytes(), err
 		})
-		if err == nil {
-			w.WriteHeader(200)
-			w.Write(value.([]byte))
-		}
+		// if err == nil {
+		w.WriteHeader(200)
+		w.Write(value.([]byte))
+		// }
 	} else {
 		err = next.ServeHTTP(w, r)
 	}
