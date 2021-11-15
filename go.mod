@@ -2,7 +2,9 @@ module github.com/9glt/go-caddy-lru-cache
 
 go 1.17
 
-require github.com/caddyserver/caddy/v2 v2.4.6
+require (
+	github.com/caddyserver/caddy/v2 v2.4.6
+)
 
 require (
 	github.com/AndreasBriese/bbloom v0.0.0-20190825152654-46b345b51c96 // indirect
@@ -10,6 +12,7 @@ require (
 	github.com/Masterminds/semver/v3 v3.1.1 // indirect
 	github.com/Masterminds/sprig/v3 v3.2.2 // indirect
 	github.com/antlr/antlr4 v0.0.0-20200503195918-621b933c7a7f // indirect
+	github.com/araddon/gou v0.0.0-20211019181548-e7d08105776c // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/caddyserver/certmagic v0.15.2 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect

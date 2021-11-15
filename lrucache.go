@@ -11,11 +11,21 @@ import (
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
 	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
+
+	lrucache "github.com/9glt/go-caddy-lru-cache/golang-lru"
+	"github.com/9glt/go-caddy-lru-cache/golang-lru/simplelru"
+)
+
+var (
+	LRUCache = simplelru.LRUCache
 )
 
 func init() {
+
+	LRUCache = lrucache.NewTTLWithEvict(3000, 60, nil)
+
 	caddy.RegisterModule(Middleware{})
-	httpcaddyfile.RegisterHandlerDirective("visitor_ip", parseCaddyfile)
+	httpcaddyfile.RegisterHandlerDirective("tscache", parseCaddyfile)
 }
 
 // Middleware implements an HTTP handler that writes the
@@ -31,7 +41,7 @@ type Middleware struct {
 // CaddyModule returns the Caddy module information.
 func (Middleware) CaddyModule() caddy.ModuleInfo {
 	return caddy.ModuleInfo{
-		ID:  "http.handlers.visitor_ip",
+		ID:  "http.handlers.tscache",
 		New: func() caddy.Module { return new(Middleware) },
 	}
 }
@@ -81,20 +91,15 @@ func (rw RW) Write(b []byte) (int, error) {
 
 // ServeHTTP implements caddyhttp.MiddlewareHandler.
 func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
-	// m.w.Write([]byte(r.RemoteAddr))
-	// fmt.Printf("%v\n", r)
+
 	buff := RW{
 		Bytes: bytes.NewBuffer(nil),
 		W:     w,
 		H:     http.Header{},
 	}
 	err := next.ServeHTTP(buff, r)
-	fmt.Printf("%s", buff.Bytes.Bytes())
-	fmt.Printf("%v", buff.H)
-	// w.WriteHeader(buff.Code)
-	// w.Header().Add("Content-Length", fmt.Sprintf("%d", buff.Bytes.Len()))
-	// w.Write(buff.Bytes.Bytes())
-	// buff.Bytes.WriteTo(w)
+	// fmt.Printf("%s", buff.Bytes.Bytes())
+	// fmt.Printf("%v", buff.H)
 	return err
 }
 
