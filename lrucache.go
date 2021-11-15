@@ -79,9 +79,7 @@ func (rw RW) Write(b []byte) (int, error) {
 func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
 	// m.w.Write([]byte(r.RemoteAddr))
 	// fmt.Printf("%v\n", r)
-	buff := RW{
-		Bytes: make([]byte, 0),
-	}
+	buff := RW{}
 	err := next.ServeHTTP(buff, r)
 	fmt.Printf("%s\n", buff.Bytes.Bytes())
 	return err
