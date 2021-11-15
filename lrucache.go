@@ -54,7 +54,7 @@ func (m *Middleware) Provision(ctx caddy.Context) error {
 	case "stderr":
 		m.w = os.Stderr
 	default:
-		return fmt.Errorf("an output stream is required")
+		// return fmt.Errorf("an output stream is required")
 	}
 	return nil
 }
