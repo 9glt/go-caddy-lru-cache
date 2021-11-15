@@ -6,7 +6,6 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"time"
 
 	"github.com/caddyserver/caddy/v2"
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
@@ -84,7 +83,6 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 		Bytes: bytes.NewBuffer(nil),
 	}
 	err := next.ServeHTTP(buff, r)
-	time.Sleep(2 * time.Second)
 	fmt.Printf("%s\n", buff.Bytes.Bytes())
 	return err
 }
