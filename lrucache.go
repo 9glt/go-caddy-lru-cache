@@ -110,7 +110,7 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 				H:     http.Header{},
 			}
 			err := next.ServeHTTP(buff, r)
-			log.Printf("mh: %v", cache.Add(r.URL.Path, buff.Bytes.Bytes()))
+			cache.Add(r.URL.Path, buff.Bytes.Bytes())
 			return buff.Bytes.Bytes(), err
 		})
 		// if err == nil {
