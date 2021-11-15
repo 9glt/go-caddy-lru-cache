@@ -104,6 +104,7 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 			var value interface{}
 			var ok bool
 			if value, ok = cache.Get(r.URL.Path); ok {
+				log.Printf("%v", ok)
 				return value, nil
 			}
 			buff := RW{
