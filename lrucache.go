@@ -1,6 +1,7 @@
 package lrucache
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"net/http"
@@ -57,7 +58,7 @@ func (m *Middleware) Validate() error {
 }
 
 type RW struct {
-	Bytes []byte
+	Bytes bytes.Buffer
 	Code  int
 }
 
@@ -71,19 +72,18 @@ func (rw RW) WriteHeader(status int) {
 
 func (rw RW) Write(b []byte) (int, error) {
 	// fmt.Printf("%s\n", b)
-	rw.Bytes = append(rw.Bytes, b...)
-	return 0, nil
+	return rw.Bytes.Write(b)
 }
 
 // ServeHTTP implements caddyhttp.MiddlewareHandler.
 func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
-	m.w.Write([]byte(r.RemoteAddr))
-	fmt.Printf("%v\n", r)
+	// m.w.Write([]byte(r.RemoteAddr))
+	// fmt.Printf("%v\n", r)
 	buff := RW{
 		Bytes: make([]byte, 0),
 	}
 	err := next.ServeHTTP(buff, r)
-	fmt.Printf("%s\n", buff.Bytes)
+	fmt.Printf("%s\n", buff.Bytes.Bytes())
 	return err
 }
 
