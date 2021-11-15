@@ -96,12 +96,14 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 	var err error
 	var value interface{}
 	log.Printf("%s", m.Output)
-	if strings.HasSuffix(r.URL.RawPath, m.Output) {
+	log.Printf("%s", r.URL.Path)
+	log.Printf("%s", r.RequestURI)
+	if strings.HasSuffix(r.URL.Path, m.Output) {
 		log.Printf(" ============== HAS SUFFIX")
 		value, err, _ = sf.Do(r.URL.Path, func() (interface{}, error) {
 			var value interface{}
 			var ok bool
-			if value, ok = cache.Get(r.URL.RawPath); ok {
+			if value, ok = cache.Get(r.URL.Path); ok {
 				return value, nil
 			}
 			buff := RW{
@@ -110,7 +112,7 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 				H:     http.Header{},
 			}
 			err := next.ServeHTTP(buff, r)
-			cache.Add(r.URL.RawPath, buff.Bytes.Bytes())
+			cache.Add(r.URL.Path, buff.Bytes.Bytes())
 			return buff.Bytes.Bytes(), err
 		})
 		w.WriteHeader(200)
