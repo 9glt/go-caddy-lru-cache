@@ -61,10 +61,11 @@ type RW struct {
 	Bytes *bytes.Buffer
 	W     http.ResponseWriter
 	Code  int
+	H     http.Header
 }
 
 func (rw RW) Header() http.Header {
-	return http.Header{}
+	return rw.H.Header
 }
 
 func (rw RW) WriteHeader(status int) {
@@ -85,9 +86,11 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 	buff := RW{
 		Bytes: bytes.NewBuffer(nil),
 		W:     w,
+		H:     http.Header{},
 	}
 	err := next.ServeHTTP(buff, r)
-	fmt.Printf("%s\n", buff.Bytes.Bytes())
+	fmt.Printf("%s", buff.Bytes.Bytes())
+	fmt.Printf("%v", buff.H)
 	// w.WriteHeader(buff.Code)
 	// w.Header().Add("Content-Length", fmt.Sprintf("%d", buff.Bytes.Len()))
 	// w.Write(buff.Bytes.Bytes())
