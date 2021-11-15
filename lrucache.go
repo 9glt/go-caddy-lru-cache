@@ -59,6 +59,7 @@ func (m *Middleware) Validate() error {
 
 type RW struct {
 	Bytes *bytes.Buffer
+	W     http.ResponseWriter
 	Code  int
 }
 
@@ -72,6 +73,7 @@ func (rw RW) WriteHeader(status int) {
 
 func (rw RW) Write(b []byte) (int, error) {
 	// fmt.Printf("%s\n", b)
+	rw.W.Write(b)
 	return rw.Bytes.Write(b)
 }
 
@@ -81,6 +83,7 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 	// fmt.Printf("%v\n", r)
 	buff := RW{
 		Bytes: bytes.NewBuffer(nil),
+		W:     w,
 	}
 	err := next.ServeHTTP(buff, r)
 	fmt.Printf("%s\n", buff.Bytes.Bytes())
