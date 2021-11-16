@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"runtime/debug"
 	"strings"
@@ -125,7 +124,6 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 				headerLock: &sync.RWMutex{},
 				Code:       200,
 				cb: func(code int) {
-					log.Printf("??????? = %v", code)
 					codes = code
 				},
 			}
@@ -134,18 +132,16 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 			buff.headerLock.RLock()
 			buff.headerLock.RUnlock()
 
-			log.Printf("====== %v", codes)
-
 			response := CustomResponse{
 				Header:     buff.H.Clone(),
-				StatusCode: buff.Code,
+				StatusCode: codes,
 				Len:        len(buff.Bytes.Bytes()),
 				Body:       make([]byte, len(buff.Bytes.Bytes())),
 			}
 
 			copy(response.Body, buff.Bytes.Bytes())
 
-			if err == nil {
+			if err == nil && response.StatusCode/100 == 2 {
 				cache.Add(r.URL.Path, response)
 			}
 			return response, err
