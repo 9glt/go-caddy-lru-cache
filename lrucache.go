@@ -78,6 +78,7 @@ type RW struct {
 	H          http.Header
 	headerLock *sync.RWMutex
 	Status     int
+	cb         func(int)
 }
 
 func (rw *RW) setHeader(code int) {
@@ -90,7 +91,8 @@ func (rw RW) Header() http.Header {
 }
 
 func (rw RW) WriteHeader(status int) {
-	(&rw).setHeader(status)
+	rw.cb(status)
+	rw.setHeader(status)
 }
 
 func (rw RW) Write(b []byte) (int, error) {
@@ -115,13 +117,17 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 			if value, ok = cache.Get(r.URL.Path); ok {
 				return value, nil
 			}
-			code := 200
+			codes := 200
 			buff := &RW{
 				Bytes:      bytes.NewBuffer(nil),
 				W:          w,
 				H:          http.Header{},
 				headerLock: &sync.RWMutex{},
-				Code:       &code,
+				Code:       &codes,
+				cb: func(code int) {
+					log.Printf("??????? = %v", code)
+					codes = code
+				},
 			}
 			buff.headerLock.Lock()
 			err := next.ServeHTTP(buff, r)
