@@ -2,6 +2,7 @@ package lrucache
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"net/http"
 	"runtime/debug"
@@ -111,7 +112,7 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 			return buff.Bytes.Bytes(), err
 		})
 		w.Header().Set("Content-Type", "text/vnd.trolltech.linguist")
-		w.Header().Set("Content-Length", len(value.([]byte))
+		w.Header().Set("Content-Length", fmt.Sprintf("%d", len(value.([]byte))))
 		w.Write(value.([]byte))
 		return err
 	} else {
