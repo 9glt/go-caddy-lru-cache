@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"runtime/debug"
+	"strconv"
 	"strings"
 	"time"
 
@@ -126,7 +127,8 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 			}
 			log.Printf("%v", buff.Code)
 			copy(response.Body, buff.Bytes.Bytes())
-			if err == nil && buff.Code/100 == 2 {
+
+			if err == nil {
 				cache.Add(r.URL.Path, response)
 			}
 			return response, err
@@ -134,7 +136,8 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 		response := value.(CustomResponse)
 		w.Header().Add("Content-Type", "text/vnd.trolltech.linguist")
 		w.Header().Add("Content-Length", fmt.Sprintf("%d", response.Len))
-		w.WriteHeader(response.StatusCode)
+		code, _ := strconv.Atoi(response.Header.Get("status"))
+		w.WriteHeader(code)
 		w.Write(response.Body)
 		return err
 	} else {
