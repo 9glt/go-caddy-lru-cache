@@ -111,6 +111,7 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 		})
 		w.WriteHeader(200)
 		w.Header().Set("Content-Type", "text/vnd.trolltech.linguist")
+		w.Header().Set("Content-Length", len(value.([]byte))
 		w.Write(value.([]byte))
 		return err
 	} else {
