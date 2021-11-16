@@ -74,7 +74,7 @@ func (m *Middleware) Validate() error {
 type RW struct {
 	Bytes      *bytes.Buffer
 	W          http.ResponseWriter
-	Code       *int
+	Code       int
 	H          http.Header
 	headerLock *sync.RWMutex
 	Status     int
@@ -82,7 +82,7 @@ type RW struct {
 }
 
 func (rw *RW) setHeader(code int) {
-	rw.Code = &code
+	rw.Code = code
 	rw.headerLock.Unlock()
 	rw.cb(code)
 }
@@ -123,7 +123,7 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 				W:          w,
 				H:          http.Header{},
 				headerLock: &sync.RWMutex{},
-				Code:       &codes,
+				Code:       200,
 				cb: func(code int) {
 					log.Printf("??????? = %v", code)
 					codes = code
@@ -138,7 +138,7 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 
 			response := CustomResponse{
 				Header:     buff.H.Clone(),
-				StatusCode: *buff.Code,
+				StatusCode: buff.Code,
 				Len:        len(buff.Bytes.Bytes()),
 				Body:       make([]byte, len(buff.Bytes.Bytes())),
 			}
