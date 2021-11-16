@@ -112,9 +112,9 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 			return buff.Bytes.Bytes(), err
 		})
 		// log.Printf("================= debug")
-		w.WriteHeader(200)
 		w.Header().Add("Content-Type", "text/vnd.trolltech.linguist")
 		w.Header().Add("Content-Length", fmt.Sprintf("%d", len(value.([]byte))))
+		w.WriteHeader(200)
 		w.Write(value.([]byte))
 		return err
 	} else {
