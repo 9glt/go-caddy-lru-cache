@@ -89,6 +89,13 @@ func (rw RW) Write(b []byte) (int, error) {
 	return rw.Bytes.Write(b)
 }
 
+type CustomResponse struct {
+	Body       []byte
+	Header     http.Header
+	Len        int
+	StatusCode int
+}
+
 // ServeHTTP implements caddyhttp.MiddlewareHandler.
 func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
 	var err error
@@ -106,15 +113,22 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 				H:     http.Header{},
 			}
 			err := next.ServeHTTP(buff, r)
-			if err == nil && buff.Code/100 == 2 {
-				cache.Add(r.URL.Path, buff.Bytes.Bytes())
+			response := CustomResponse{
+				Header:     buff.H.Clone(),
+				StatusCode: buff.Code,
+				Len:        len(buff.Bytes.Bytes()),
 			}
-			return buff.Bytes.Bytes(), err
+			copy(response.Body, buff.Bytes.Bytes())
+			if err == nil && buff.Code/100 == 2 {
+				cache.Add(r.URL.Path, response)
+			}
+			return response, err
 		})
+		response := value.(CustomResponse)
 		w.Header().Add("Content-Type", "text/vnd.trolltech.linguist")
-		w.Header().Add("Content-Length", fmt.Sprintf("%d", len(value.([]byte))))
-		w.WriteHeader(200)
-		w.Write(value.([]byte))
+		w.Header().Add("Content-Length", fmt.Sprintf("%d", response.Len))
+		w.WriteHeader(response.StatusCode)
+		w.Write(response.Body)
 		return err
 	} else {
 		err = next.ServeHTTP(w, r)
