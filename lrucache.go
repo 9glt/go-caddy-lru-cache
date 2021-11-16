@@ -91,7 +91,6 @@ func (rw RW) Header() http.Header {
 
 func (rw RW) WriteHeader(status int) {
 	rw.setHeader(status)
-	log.Printf("====== %v", rw.Code)
 }
 
 func (rw RW) Write(b []byte) (int, error) {
@@ -126,6 +125,8 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 			err := next.ServeHTTP(buff, r)
 			buff.headerLock.RLock()
 			buff.headerLock.RUnlock()
+
+			log.Printf("====== %v", buff.Code)
 
 			response := CustomResponse{
 				Header:     buff.H.Clone(),
