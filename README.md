@@ -1,5 +1,8 @@
 # go-caddy-lru-cache
 
+just for testing caddy modules
+
+
 ```
 go get -u github.com/caddyserver/xcaddy/cmd/xcaddy
 xcaddy build  --with github.com/9glt/go-caddy-lru-cache
