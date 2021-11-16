@@ -86,7 +86,6 @@ func (rw RW) Header() http.Header {
 func (rw RW) WriteHeader(status int) {
 	rw.Code = status
 	rw.headerLock.Unlock()
-	// rw.W.WriteHeader(status)
 }
 
 func (rw RW) Write(b []byte) (int, error) {
@@ -118,10 +117,9 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 				headerLock: &sync.RWMutex{},
 			}
 			buff.headerLock.Lock()
-
 			err := next.ServeHTTP(buff, r)
-			buff.headerLock.Lock()
-			buff.headerLock.Unlock()
+			buff.headerLock.RLock()
+			buff.headerLock.RUnlock()
 
 			response := CustomResponse{
 				Header:     buff.H.Clone(),
@@ -130,9 +128,9 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 				Body:       make([]byte, len(buff.Bytes.Bytes())),
 			}
 			if response.StatusCode == 0 {
-				response.StatusCode = 404
+				response.StatusCode = 200
 			}
-			log.Printf("%v", buff.Code)
+			log.Printf("%v", buff.H.Clone())
 			copy(response.Body, buff.Bytes.Bytes())
 
 			if err == nil {
