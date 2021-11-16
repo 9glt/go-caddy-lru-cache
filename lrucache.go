@@ -132,7 +132,7 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 
 			response := CustomResponse{
 				Header:     buff.H.Clone(),
-				StatusCode: buff.Code,
+				StatusCode: *buff.Code,
 				Len:        len(buff.Bytes.Bytes()),
 				Body:       make([]byte, len(buff.Bytes.Bytes())),
 			}
