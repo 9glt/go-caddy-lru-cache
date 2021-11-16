@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"runtime/debug"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/caddyserver/caddy/v2"
@@ -71,18 +70,16 @@ func (m *Middleware) Validate() error {
 }
 
 type RW struct {
-	Bytes      *bytes.Buffer
-	W          http.ResponseWriter
-	Code       int
-	H          http.Header
-	headerLock *sync.RWMutex
-	Status     int
-	cb         func(int)
+	Bytes  *bytes.Buffer
+	W      http.ResponseWriter
+	Code   int
+	H      http.Header
+	Status int
+	cb     func(int)
 }
 
 func (rw *RW) setHeader(code int) {
 	rw.Code = code
-	rw.headerLock.Unlock()
 	rw.cb(code)
 }
 
@@ -118,19 +115,15 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 			}
 			codes := 200
 			buff := &RW{
-				Bytes:      bytes.NewBuffer(nil),
-				W:          w,
-				H:          http.Header{},
-				headerLock: &sync.RWMutex{},
-				Code:       200,
+				Bytes: bytes.NewBuffer(nil),
+				W:     w,
+				H:     http.Header{},
+				Code:  200,
 				cb: func(code int) {
 					codes = code
 				},
 			}
-			buff.headerLock.Lock()
 			err := next.ServeHTTP(buff, r)
-			buff.headerLock.RLock()
-			buff.headerLock.RUnlock()
 
 			response := CustomResponse{
 				Header:     buff.H.Clone(),
