@@ -77,6 +77,7 @@ type RW struct {
 	Code       int
 	H          http.Header
 	headerLock *sync.RWMutex
+	Status     int
 }
 
 func (rw RW) Header() http.Header {
@@ -84,6 +85,7 @@ func (rw RW) Header() http.Header {
 }
 
 func (rw RW) WriteHeader(status int) {
+	log.Printf("======= %v", status)
 	rw.Code = status
 	rw.headerLock.Unlock()
 }
