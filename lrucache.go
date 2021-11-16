@@ -106,12 +106,11 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 				H:     http.Header{},
 			}
 			err := next.ServeHTTP(buff, r)
-			if err == nil {
+			if err == nil && buff.Code/100 == 2 {
 				cache.Add(r.URL.Path, buff.Bytes.Bytes())
 			}
 			return buff.Bytes.Bytes(), err
 		})
-		// log.Printf("================= debug")
 		w.Header().Add("Content-Type", "text/vnd.trolltech.linguist")
 		w.Header().Add("Content-Length", fmt.Sprintf("%d", len(value.([]byte))))
 		w.WriteHeader(200)
