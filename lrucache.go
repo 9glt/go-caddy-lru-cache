@@ -7,7 +7,6 @@ import (
 	"log"
 	"net/http"
 	"runtime/debug"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -142,13 +141,9 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 		})
 		response := value.(CustomResponse)
 
-		log.Printf("%v", response.Header)
 		w.Header().Add("Content-Type", "text/vnd.trolltech.linguist")
 		w.Header().Add("Content-Length", fmt.Sprintf("%d", response.Len))
-		code, _ := strconv.Atoi(response.Header.Get("status"))
-		log.Printf("%v", code)
-
-		w.WriteHeader(200)
+		w.WriteHeader(response.StatusCode)
 		w.Write(response.Body)
 		return err
 	} else {
