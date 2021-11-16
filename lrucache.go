@@ -118,9 +118,10 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 				headerLock: &sync.RWMutex{},
 			}
 			buff.headerLock.Lock()
+
 			err := next.ServeHTTP(buff, r)
-			buff.headerLock.RLock()
-			buff.headerLock.RUnlock()
+			buff.headerLock.Lock()
+			buff.headerLock.Unlock()
 
 			response := CustomResponse{
 				Header:     buff.H.Clone(),
