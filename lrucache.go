@@ -115,7 +115,7 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 			if value, ok = cache.Get(r.URL.Path); ok {
 				return value, nil
 			}
-			buff := RW{
+			buff := &RW{
 				Bytes:      bytes.NewBuffer(nil),
 				W:          w,
 				H:          http.Header{},
