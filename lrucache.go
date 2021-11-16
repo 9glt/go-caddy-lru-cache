@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"io"
 	"net/http"
+	"runtime/debug"
 	"strings"
 	"time"
 
@@ -27,6 +28,13 @@ func init() {
 
 	caddy.RegisterModule(Middleware{})
 	httpcaddyfile.RegisterHandlerDirective("tscache", parseCaddyfile)
+
+	go func() {
+		for {
+			debug.FreeOSMemory()
+			time.Sleep(1 * time.Second)
+		}
+	}()
 }
 
 // Middleware implements an HTTP handler that writes the
