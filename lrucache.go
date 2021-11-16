@@ -134,10 +134,14 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 			return response, err
 		})
 		response := value.(CustomResponse)
+
+		log.Printf("%v", response.Header)
 		w.Header().Add("Content-Type", "text/vnd.trolltech.linguist")
 		w.Header().Add("Content-Length", fmt.Sprintf("%d", response.Len))
 		code, _ := strconv.Atoi(response.Header.Get("status"))
-		w.WriteHeader(code)
+		log.Printf("%v", code)
+
+		w.WriteHeader(200)
 		w.Write(response.Body)
 		return err
 	} else {
