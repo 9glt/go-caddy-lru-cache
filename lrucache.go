@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"runtime/debug"
 	"strings"
@@ -126,6 +127,7 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 			return response, err
 		})
 		response := value.(CustomResponse)
+		log.Printf("%v", reponse)
 		w.Header().Add("Content-Type", "text/vnd.trolltech.linguist")
 		w.Header().Add("Content-Length", fmt.Sprintf("%d", response.Len))
 		w.WriteHeader(response.StatusCode)
