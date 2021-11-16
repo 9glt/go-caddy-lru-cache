@@ -84,7 +84,7 @@ type RW struct {
 func (rw *RW) setHeader(code int) {
 	rw.Code = &code
 	rw.headerLock.Unlock()
-	rw.cb(status)
+	rw.cb(code)
 }
 
 func (rw RW) Header() http.Header {
@@ -134,7 +134,7 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 			buff.headerLock.RLock()
 			buff.headerLock.RUnlock()
 
-			log.Printf("====== %v", code)
+			log.Printf("====== %v", codes)
 
 			response := CustomResponse{
 				Header:     buff.H.Clone(),
