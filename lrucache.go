@@ -74,14 +74,14 @@ func (m *Middleware) Validate() error {
 type RW struct {
 	Bytes      *bytes.Buffer
 	W          http.ResponseWriter
-	Code       int
+	Code       *int
 	H          http.Header
 	headerLock *sync.RWMutex
 	Status     int
 }
 
 func (rw *RW) setHeader(code int) {
-	rw.Code = code
+	rw.Code = &code
 	rw.headerLock.Unlock()
 }
 
@@ -90,7 +90,6 @@ func (rw RW) Header() http.Header {
 }
 
 func (rw RW) WriteHeader(status int) {
-	(&rw).Code = status
 	(&rw).setHeader(status)
 }
 
@@ -116,12 +115,13 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 			if value, ok = cache.Get(r.URL.Path); ok {
 				return value, nil
 			}
+			code := 200
 			buff := &RW{
 				Bytes:      bytes.NewBuffer(nil),
 				W:          w,
 				H:          http.Header{},
 				headerLock: &sync.RWMutex{},
-				Code:       200,
+				Code:       &code,
 			}
 			buff.headerLock.Lock()
 			err := next.ServeHTTP(buff, r)
