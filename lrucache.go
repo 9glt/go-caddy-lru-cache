@@ -114,11 +114,15 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 				H:     http.Header{},
 			}
 			err := next.ServeHTTP(buff, r)
+
 			response := CustomResponse{
 				Header:     buff.H.Clone(),
 				StatusCode: buff.Code,
 				Len:        len(buff.Bytes.Bytes()),
 				Body:       make([]byte, len(buff.Bytes.Bytes())),
+			}
+			if response.StatusCode == 0 {
+				response.StatusCode = 200
 			}
 			copy(response.Body, buff.Bytes.Bytes())
 			if err == nil && buff.Code/100 == 2 {
