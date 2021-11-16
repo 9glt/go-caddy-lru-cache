@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"runtime/debug"
 	"strings"
@@ -80,14 +79,16 @@ type RW struct {
 	Status     int
 }
 
+func (rw *RW) setHeader(code int) {
+	rw.Code = code
+}
+
 func (rw RW) Header() http.Header {
 	return rw.H
 }
 
 func (rw RW) WriteHeader(status int) {
-	log.Printf("======= %v", status)
-	rw.Code = status
-	rw.headerLock.Unlock()
+	rw.setHeader(status)
 }
 
 func (rw RW) Write(b []byte) (int, error) {
@@ -129,10 +130,7 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 				Len:        len(buff.Bytes.Bytes()),
 				Body:       make([]byte, len(buff.Bytes.Bytes())),
 			}
-			if response.StatusCode == 0 {
-				response.StatusCode = 200
-			}
-			log.Printf("%v", buff.H.Clone())
+
 			copy(response.Body, buff.Bytes.Bytes())
 
 			if err == nil {
