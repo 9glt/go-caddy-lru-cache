@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"runtime/debug"
 	"strings"
@@ -90,6 +91,7 @@ func (rw RW) Header() http.Header {
 
 func (rw RW) WriteHeader(status int) {
 	rw.setHeader(status)
+	log.Printf("====== %v", rw.Code)
 }
 
 func (rw RW) Write(b []byte) (int, error) {
