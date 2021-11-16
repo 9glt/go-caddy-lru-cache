@@ -81,6 +81,7 @@ func (rw RW) Header() http.Header {
 
 func (rw RW) WriteHeader(status int) {
 	rw.Code = status
+	rw.W.WriteHeader(status)
 }
 
 func (rw RW) Write(b []byte) (int, error) {
@@ -109,7 +110,6 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 			}
 			return buff.Bytes.Bytes(), err
 		})
-		w.WriteHeader(200)
 		w.Header().Set("Content-Type", "text/vnd.trolltech.linguist")
 		w.Header().Set("Content-Length", len(value.([]byte))
 		w.Write(value.([]byte))
