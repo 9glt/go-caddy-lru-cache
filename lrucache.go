@@ -126,7 +126,7 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 			err := next.ServeHTTP(buff, r)
 			buff.headerLock.RLock()
 			buff.headerLock.RUnlock()
-
+			time.Sleep(time.Second * 5)
 			log.Printf("====== %v", buff.Code)
 
 			response := CustomResponse{
