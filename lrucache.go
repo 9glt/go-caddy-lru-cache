@@ -122,8 +122,9 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 				Body:       make([]byte, len(buff.Bytes.Bytes())),
 			}
 			if response.StatusCode == 0 {
-				response.StatusCode = 200
+				response.StatusCode = 404
 			}
+			log.Printf("%v", buff.Code)
 			copy(response.Body, buff.Bytes.Bytes())
 			if err == nil && buff.Code/100 == 2 {
 				cache.Add(r.URL.Path, response)
@@ -131,7 +132,6 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 			return response, err
 		})
 		response := value.(CustomResponse)
-		log.Printf("%v", reponse)
 		w.Header().Add("Content-Type", "text/vnd.trolltech.linguist")
 		w.Header().Add("Content-Length", fmt.Sprintf("%d", response.Len))
 		w.WriteHeader(response.StatusCode)
