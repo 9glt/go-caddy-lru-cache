@@ -120,6 +120,7 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 				W:          w,
 				H:          http.Header{},
 				headerLock: &sync.RWMutex{},
+				Code:       200,
 			}
 			buff.headerLock.Lock()
 			err := next.ServeHTTP(buff, r)
