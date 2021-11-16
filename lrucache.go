@@ -3,9 +3,7 @@ package lrucache
 import (
 	"bytes"
 	"io"
-	"log"
 	"net/http"
-	"os"
 	"strings"
 	"time"
 
@@ -51,14 +49,6 @@ func (Middleware) CaddyModule() caddy.ModuleInfo {
 
 // Provision implements caddy.Provisioner.
 func (m *Middleware) Provision(ctx caddy.Context) error {
-	switch m.Output {
-	case "stdout":
-		m.w = os.Stdout
-	case "stderr":
-		m.w = os.Stderr
-	default:
-		// return fmt.Errorf("an output stream is required")
-	}
 	return nil
 }
 
@@ -83,13 +73,10 @@ func (rw RW) Header() http.Header {
 
 func (rw RW) WriteHeader(status int) {
 	rw.Code = status
-	rw.W.WriteHeader(status)
 }
 
 func (rw RW) Write(b []byte) (int, error) {
-	// fmt.Printf("%s\n", b)
 	return rw.Bytes.Write(b)
-	// return rw.W.Write(b)
 }
 
 // ServeHTTP implements caddyhttp.MiddlewareHandler.
@@ -101,7 +88,6 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 			var value interface{}
 			var ok bool
 			if value, ok = cache.Get(r.URL.Path); ok {
-				log.Printf("%v", ok)
 				return value, nil
 			}
 			buff := RW{
@@ -110,14 +96,14 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 				H:     http.Header{},
 			}
 			err := next.ServeHTTP(buff, r)
-			cache.Add(r.URL.Path, buff.Bytes.Bytes())
+			if err == nil {
+				cache.Add(r.URL.Path, buff.Bytes.Bytes())
+			}
 			return buff.Bytes.Bytes(), err
 		})
-		// if err == nil {
 		w.WriteHeader(200)
 		w.Header().Set("Content-Type", "text/vnd.trolltech.linguist")
 		w.Write(value.([]byte))
-		// }
 	} else {
 		err = next.ServeHTTP(w, r)
 	}
