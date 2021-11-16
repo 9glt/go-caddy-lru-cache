@@ -90,7 +90,8 @@ func (rw RW) Header() http.Header {
 }
 
 func (rw RW) WriteHeader(status int) {
-	rw.setHeader(status)
+	(&rw).Code = status
+	(&rw).setHeader(status)
 }
 
 func (rw RW) Write(b []byte) (int, error) {
@@ -126,7 +127,7 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 			err := next.ServeHTTP(buff, r)
 			buff.headerLock.RLock()
 			buff.headerLock.RUnlock()
-			time.Sleep(time.Second * 5)
+
 			log.Printf("====== %v", buff.Code)
 
 			response := CustomResponse{
